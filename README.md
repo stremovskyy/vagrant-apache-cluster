@@ -58,9 +58,6 @@ First test that all nodes are up ```vagrant status```. The result should be simi
 ```
 Current machine states:
 
-zookeeper1                running (virtualbox)
-zookeeper2                running (virtualbox)
-zookeeper3                running (virtualbox)
 broker1                   running (virtualbox)
 broker2                   running (virtualbox)
 broker3                   running (virtualbox)

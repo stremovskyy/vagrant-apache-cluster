@@ -36,16 +36,16 @@ Here is the mapping of VMs to their private IPs:
 
 | VM Name    | Host Name | IP Address |
 | ---------- | --------- | ---------- |
-| broker1    | br1   | 192.168.1.210 |
-| broker2    | br2   | 192.168.1.220 |
-| broker3    | br3   | 192.168.1.230 |
+| broker1    | node1   | 192.168.1.210 |
+| broker2    | node1   | 192.168.1.220 |
+| broker3    | node3   | 192.168.1.230 |
 
 Hosts file entries:
 
 ```
-192.168.1.210 	br1
-192.168.1.220 	br2
-192.168.1.230 	br3
+192.168.1.210 	node1
+192.168.1.220 	node1
+192.168.1.230 	node3
 ```
 
 Zookeeper servers bind to port 2181. Kafka brokers bind to port 9092. 
@@ -173,7 +173,7 @@ Send data to the Kafka topic
 
 ```bash
 echo "Yet another line from stdin" | $KAFKA_HOME/bin/kafka-console-producer.sh \
-   --topic test-one --broker-list br1:9092,br2:9092,br3:9092
+   --topic test-one --broker-list node1:9092,node1:9092,node3:9092
 ```
 
 You can then test that the line was added by running the consumer
@@ -203,7 +203,7 @@ Redirecing this output to Kafka creates a basic form of a streaming producer.
 
 ```bash
 vmstat -a 1 -n 100 | $KAFKA_HOME/bin/kafka-console-producer.sh \
-   --topic test-one --broker-list br1:9092,br2:9092,br3:9092 &
+   --topic test-one --broker-list node1:9092,node1:9092,node3:9092 &
 ```
 
 While the producer runs in the background you can start the consumer to see what happens

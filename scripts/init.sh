@@ -7,4 +7,4 @@ su -c "yum -y install java-1.8.0-openjdk-devel wget"
 # su -c "/etc/init.d/iptables stop"
 
 # chmod scripts
-chmod u+x /vagrant/scripts/*.sh
+sudo chmod u+x /vagrant/scripts/*.sh

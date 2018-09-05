@@ -1,4 +1,4 @@
 #!/bin/bash
 
 echo "Starting Cassandra Server..."
-service cassandra start
+sudo service cassandra start

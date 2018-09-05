@@ -2,17 +2,20 @@
 # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION ||= "2"
-CLUSTER_SIZE ||= 3
+CLUSTER_SIZE ||= 1
 
-INSTALL_ZOOKEEPER ||= true
+INSTALL_ZOOKEEPER ||= false
 ZOOKEEPER_VERSION ||= "3.4.13"
 
-INSTALL_KAFKA ||= true
+INSTALL_KAFKA ||= false
 KAFKA_VERSION ||= "2.0.0"
 
-INSTALL_CASSANDRA ||= true
+INSTALL_CASSANDRA ||= false
 
-# INSTALL_IGNITE ||= false
+INSTALL_IGNITE ||= true
+IGNITE_VERSION ||= "2.6.0"
+
+
 # INSTALL_SPARK ||= false
 # INSTALL_HDFS ||= false
 
@@ -34,7 +37,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "ZOOKEEPER_VERSION" => ZOOKEEPER_VERSION,
     "ZOOKEEPER_NAME" => "zookeeper-$ZOOKEEPER_VERSION",
     "ZOOKEEPER_HOME" => "$HOME/$ZOOKEEPER_NAME",
-    "ZOOKEEPER_DATA" => "/var/zookeeper"
+    "ZOOKEEPER_DATA" => "/var/zookeeper",
+
+    "IGNITE_VERSION" => IGNITE_VERSION,
+    "IGNITE_NAME" => "apache-ignite-fabric-$IGNITE_VERSION-bin",
+    "IGNITE_HOME" => "$HOME/$IGNITE_NAME",
+    "IGNITE_DATA" => "/var/ignite"
   }
 
   # escape environment variables to be loaded to /etc/profile.d/
@@ -58,6 +66,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.provision "shell", path: "scripts/cassandra_install.sh", env: vars
   end
  
+  if INSTALL_IGNITE 
+    config.vm.provision "shell", path: "scripts/ignite_install.sh", env: vars
+  end
+
   # configure nodes
   (1..CLUSTER_SIZE).each do |i|
     config.vm.define "node#{i}" do |s|
@@ -109,6 +121,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       if INSTALL_CASSANDRA
         s.vm.provision "shell", run: "always", path: "scripts/cassandra_start.sh", args:"#{i}", privileged: true, env: vars
+      end
+
+      if INSTALL_IGNITE
+        s.vm.provision "shell", run: "always", path: "scripts/ignite_start.sh", args:"#{i}", privileged: false, env: vars
       end
     end
   end

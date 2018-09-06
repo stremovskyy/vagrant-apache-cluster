@@ -2,22 +2,19 @@
 
 echo "installing Apache Ignite"
 
-echo "downloading Ignite...$IGNITE_VERSION"
+sudo bash -c 'cat <<EOF > /etc/yum.repos.d/ignite.repo
+[ignite]
+name=Apache Ignite
+baseurl=http://apache.org/dist/ignite/rpm/
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=http://apache.org/dist/ignite/KEYS
+       http://bintray.com/user/downloadSubjectPublicKey?username=bintray
+EOF'
+sudo yum -y check-update
+sudo yum -y install apache-ignite
 
-sudo yum -y install unzip
-
-#download Zookeeper binaries if not present
-if [ ! -f  $TARGET/$IGNITE_NAME.zip ]; then
-   mkdir -p $TARGET
-   wget -O "$TARGET/$IGNITE_NAME.zip" http://apache.ip-connect.vn.ua/ignite/"$IGNITE_VERSION/$IGNITE_NAME.zip"
-fi
-
-if [ ! -d $IGNITE_NAME ]; then 
-   unzip $TARGET/$IGNITE_NAME.zip
-fi
-
-cp $IGNITE_NAME/config/default-config.xml $IGNITE_NAME/config/config.xml
-sudo chown -R vagrant:vagrant $IGNITE_NAME
+sudo cp /etc/apache-ignite/default-config.xml /etc/apache-ignite/config.xml
 
 sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 47500:47509 -j ACCEPT
 sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 47400 -j ACCEPT
@@ -27,3 +24,5 @@ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 48100 -j ACCEP
 sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 48101 -j ACCEPT
 sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 31100 -j ACCEPT
 sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 31101 -j ACCEPT
+
+echo "Done - Apache Ignite..."

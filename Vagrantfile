@@ -2,15 +2,16 @@
 # vi: set ft=ruby :
 
 VAGRANTFILE_API_VERSION ||= "2"
-CLUSTER_SIZE ||= 1
+CLUSTER_SIZE ||= 3
 
-INSTALL_ZOOKEEPER ||= false
+INSTALL_ZOOKEEPER ||= true
 ZOOKEEPER_VERSION ||= "3.4.13"
 
 INSTALL_KAFKA ||= false
 KAFKA_VERSION ||= "2.0.0"
 
 INSTALL_CASSANDRA ||= false
+CASSANDRA_VERSION ||= "3.11.3"
 
 INSTALL_IGNITE ||= true
 IGNITE_VERSION ||= "2.6.0"
@@ -37,12 +38,17 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "ZOOKEEPER_VERSION" => ZOOKEEPER_VERSION,
     "ZOOKEEPER_NAME" => "zookeeper-$ZOOKEEPER_VERSION",
     "ZOOKEEPER_HOME" => "$HOME/$ZOOKEEPER_NAME",
-    "ZOOKEEPER_DATA" => "/var/zookeeper",
+    "ZOOKEEPER_DATA" => "/var/lib/zookeeper",
 
     "IGNITE_VERSION" => IGNITE_VERSION,
     "IGNITE_NAME" => "apache-ignite-fabric-$IGNITE_VERSION-bin",
     "IGNITE_HOME" => "$HOME/$IGNITE_NAME",
-    "IGNITE_DATA" => "/var/ignite"
+    "IGNITE_DATA" => "/var/lib/ignite",
+
+    "CASSANDRA_VERSION" => CASSANDRA_VERSION,
+    "CASSANDRA_NAME" => "apache-cassandra-$CASSANDRA_VERSION",
+    "CASSANDRA_HOME" => "$HOME/$CASSANDRA_NAME",
+    "CASSANDRA_DATA" => "/var/lib/cassandra",
   }
 
   # escape environment variables to be loaded to /etc/profile.d/
@@ -68,6 +74,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
  
   if INSTALL_IGNITE 
     config.vm.provision "shell", path: "scripts/ignite_install.sh", env: vars
+    if INSTALL_ZOOKEEPER
+      config.vm.provision "shell", path: "scripts/ignite_config_zk.sh",privileged: false, env: vars
+    end
   end
 
   # configure nodes
@@ -88,6 +97,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       if INSTALL_CASSANDRA
         s.vm.provision "shell", path: "scripts/cassandra_config.sh", args:"#{i}", privileged: false, env: vars
+      end
+
+      if INSTALL_IGNITE
+        s.vm.provision "shell", path: "scripts/ignite_config.sh", args:"#{i}", privileged: false, env: vars
       end
 
 # Config Each service
@@ -120,7 +133,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
 
       if INSTALL_CASSANDRA
-        s.vm.provision "shell", run: "always", path: "scripts/cassandra_start.sh", args:"#{i}", privileged: true, env: vars
+        s.vm.provision "shell", run: "always", path: "scripts/cassandra_start.sh", args:"#{i}", privileged: false, env: vars
       end
 
       if INSTALL_IGNITE

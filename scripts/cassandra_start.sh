@@ -1,4 +1,5 @@
 #!/bin/bash
 
 echo "Starting Cassandra Server..."
-sudo service cassandra start
+nohup $CASSANDRA_NAME/bin/cassandra &
+sleep 2

@@ -1,0 +1,37 @@
+---
+# A cluster size (any words, how many vm should be started)
+# Note! for normal work in cluster this value should be grater than 3
+cluster_size: 3
+max_memory: 2048
+max_cpu_precent: 50
+node_name_prfix: "node"
+
+# Prefix for public ips
+public:
+  enable: true
+  prefix_ip:  192.168.1.2
+  bridge: "en0: Ethernet"
+
+private:
+  enable: false
+  prefix_ip:  10.20.30.1
+
+# Apache Zookeeper Section
+zookeeper:
+  install: true
+  version: "3.4.13"
+
+# Apache Kafka Section
+apache_kafka:
+  install: true
+  version: "2.0.0"
+
+# Apache Ignite Section (May need to enable zookeeper)
+ignite:
+  install: false
+  version: "2.6.0"
+
+# Apache Cassandra Section
+cassandra:
+  install: false
+  version: "3.11.3"

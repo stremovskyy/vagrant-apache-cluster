@@ -1,26 +1,19 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'yaml'
+
 VAGRANTFILE_API_VERSION ||= "2"
-CLUSTER_SIZE ||= 3
-
-INSTALL_ZOOKEEPER ||= true
-ZOOKEEPER_VERSION ||= "3.4.13"
-
-INSTALL_KAFKA ||= true
-KAFKA_VERSION ||= "2.0.0"
-
-INSTALL_CASSANDRA ||= false
-CASSANDRA_VERSION ||= "3.11.3"
-
-INSTALL_IGNITE ||= true
-IGNITE_VERSION ||= "2.6.0"
-
-
-# INSTALL_SPARK ||= false
-# INSTALL_HDFS ||= false
-
 Vagrant.require_version '>= 2.0.2'
+
+confDir = $confDir ||= File.expand_path(File.dirname(__FILE__)) + '/config'
+confFile = confDir + "/config.yaml"
+
+if File.exist? confFile then
+  settings = YAML::load(File.read(confFile))
+else
+  abort "Settings file not found in #{confDir}"
+end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
@@ -28,24 +21,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_agent = true # So that boxes don't have to setup key-less ssh
   config.ssh.insert_key = false # To generate a new ssh key and don't use the default Vagrant one
 
-  vars = { 
+  vars = {
     "TARGET" => "/vagrant/tars",
+    "NODE_NAME_PREFIX" => settings['node_name_prfix'],
 
-    "KAFKA_VERSION" => KAFKA_VERSION,
+    "KAFKA_VERSION" => settings['apache_kafka']['version'],
     "KAFKA_NAME" => "kafka_2.12-$KAFKA_VERSION",
     "KAFKA_HOME" => "$HOME/$KAFKA_NAME",
 
-    "ZOOKEEPER_VERSION" => ZOOKEEPER_VERSION,
+    "ZOOKEEPER_VERSION" => settings['zookeeper']['version'],
     "ZOOKEEPER_NAME" => "zookeeper-$ZOOKEEPER_VERSION",
     "ZOOKEEPER_HOME" => "$HOME/$ZOOKEEPER_NAME",
     "ZOOKEEPER_DATA" => "/var/lib/zookeeper",
 
-    "IGNITE_VERSION" => IGNITE_VERSION,
+    "IGNITE_VERSION" => settings['ignite']['version'],
     "IGNITE_NAME" => "apache-ignite-fabric-$IGNITE_VERSION-bin",
     "IGNITE_HOME" => "$HOME/$IGNITE_NAME",
     "IGNITE_DATA" => "/var/lib/ignite",
 
-    "CASSANDRA_VERSION" => CASSANDRA_VERSION,
+    "CASSANDRA_VERSION" => settings['cassandra']['version'],
     "CASSANDRA_NAME" => "apache-cassandra-$CASSANDRA_VERSION",
     "CASSANDRA_HOME" => "$HOME/$CASSANDRA_NAME",
     "CASSANDRA_DATA" => "/var/lib/cassandra",
@@ -54,89 +48,100 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # escape environment variables to be loaded to /etc/profile.d/
   as_str = vars.map{|k,str| ["export #{k}=#{str.gsub '$', '\$'}"] }.join("\n")
 
-  # common provisioning for all 
+  # common provisioning for all
   config.vm.provision "shell", inline: "echo \"#{as_str}\" > /etc/profile.d/kafka_vagrant_env.sh", run: "always"
   config.vm.provision "shell", path: "scripts/init.sh", env: vars, privileged: true
   config.vm.provision "shell", path: "scripts/hosts_config.sh", privileged: true, env: vars 
 
-  if INSTALL_ZOOKEEPER
+  if settings['zookeeper']['install']
     config.vm.provision "shell", path: "scripts/zookeeper_install.sh",privileged: false, env: vars
     config.vm.provision "shell", path: "scripts/zookeeper_config.sh", privileged: false, env: vars 
   end
 
-  if INSTALL_KAFKA 
+  if settings['apache_kafka']['install']
     config.vm.provision "shell", path: "scripts/kafka_install.sh", env: vars
   end
 
-  if INSTALL_CASSANDRA 
+  if settings['cassandra']['install']
     config.vm.provision "shell", path: "scripts/cassandra_install.sh", env: vars
   end
  
-  if INSTALL_IGNITE 
+  if settings['ignite']['install']
     config.vm.provision "shell", path: "scripts/ignite_install.sh", env: vars
-    if INSTALL_ZOOKEEPER
+    if settings['zookeeper']['install']
       config.vm.provision "shell", path: "scripts/ignite_config_zk.sh",privileged: false, env: vars
     end
   end
 
   # configure nodes
-  (1..CLUSTER_SIZE).each do |i|
-    config.vm.define "node#{i}" do |s|
-      s.vm.hostname = "node#{i}"
-      # s.vm.network "private_network", ip: "10.20.30.#{i}"
-
-# Config services
-
-  if INSTALL_ZOOKEEPER
-        s.vm.provision "shell", path: "scripts/zookeeper_each_config.sh", args:"#{i}", privileged: false, env: vars
+  (1..settings['cluster_size']).each do |i|
+    config.vm.define settings['node_name_prfix'] + "#{i}" do |s|
+      s.vm.hostname = settings['node_name_prfix'] + "#{i}"
+      s.vm.post_up_message = "Virtal node name: " + settings['node_name_prfix'] + "#{i}"
+      
+      if settings['private']['enable']
+        s.vm.network "private_network", ip: settings['private']['prefix_ip'] + "#{i}"
+        s.vm.post_up_message = "Private IP: " + settings['private']['prefix_ip'] + "#{i}"
       end
 
-      if INSTALL_KAFKA
+      if settings['public']['enable']
+        s.vm.network "public_network", ip: settings['public']['prefix_ip'] + "#{i}" , bridge: settings['public']['bridge']
+        s.vm.post_up_message = "Public IP: " + settings['public']['prefix_ip'] + "#{i}"
+      end
+
+      # Config services
+
+      if settings['zookeeper']['install']
+            s.vm.provision "shell", path: "scripts/zookeeper_each_config.sh", args:"#{i}", privileged: false, env: vars
+      end
+
+      if settings['apache_kafka']['install']
         s.vm.provision "shell", path: "scripts/kafka_config.sh", args:"#{i}", privileged: false, env: vars
       end
 
-      if INSTALL_CASSANDRA
+      if settings['cassandra']['install']
         s.vm.provision "shell", path: "scripts/cassandra_config.sh", args:"#{i}", privileged: false, env: vars
       end
 
-      if INSTALL_IGNITE
+      if settings['ignite']['install']
         s.vm.provision "shell", path: "scripts/ignite_config.sh", args:"#{i}", privileged: false, env: vars
       end
 
-# Config Each service
+      # Config Each service
 
-        (1..CLUSTER_SIZE).each do |z|
-          s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:"#{z}", privileged: true, env: vars 
-          
-          if INSTALL_ZOOKEEPER
-            s.vm.provision "shell",  path: "scripts/zookeeper_config.sh", args:"#{z}", privileged: false, env: vars 
-          end
-          
-          if INSTALL_KAFKA 
-            s.vm.provision "shell",  path: "scripts/kafka_broker_config.sh", args:"#{z}", privileged: false, env: vars 
-          end
-          
-          if INSTALL_CASSANDRA 
-            s.vm.provision "shell",  path: "scripts/cassandra_each_config.sh", args:"#{z}", privileged: false, env: vars 
-          end
+      (1..settings['cluster_size']).each do |z|
+        s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:"#{z}", privileged: true, env: vars 
+        
+        if settings['zookeeper']['install']
+          s.vm.provision "shell",  path: "scripts/zookeeper_config.sh", args:"#{z}", privileged: false, env: vars 
         end
-      s.vm.network "public_network", ip: "192.168.1.2#{i}" ,bridge: "en0: Ethernet"
+        
+        if settings['apache_kafka']['install'] 
+          s.vm.provision "shell",  path: "scripts/kafka_broker_config.sh", args:"#{z}", privileged: false, env: vars 
+        end
+        
+        if settings['cassandra']['install'] 
+          s.vm.provision "shell",  path: "scripts/cassandra_each_config.sh", args:"#{z}", privileged: false, env: vars 
+        end
+      end
 
-# Starting services
 
-      if INSTALL_ZOOKEEPER
+
+      # Starting services
+
+      if settings['zookeeper']['install']
         s.vm.provision "shell", run: "always", path: "scripts/zookeeper_start.sh", args:"#{i}", privileged: false, env: vars
       end
 
-      if INSTALL_KAFKA
+      if settings['apache_kafka']['install']
         s.vm.provision "shell", run: "always", path: "scripts/kafka_start.sh", args:"#{i}", privileged: false, env: vars
       end
 
-      if INSTALL_CASSANDRA
+      if settings['cassandra']['install']
         s.vm.provision "shell", run: "always", path: "scripts/cassandra_start.sh", args:"#{i}", privileged: false, env: vars
       end
 
-      if INSTALL_IGNITE
+      if settings['ignite']['install']
         s.vm.provision "shell", run: "always", path: "scripts/ignite_start.sh", args:"#{i}", privileged: false, env: vars
       end
     end
@@ -144,9 +149,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provider "virtualbox" do |v|
     #  This setting controls how much cpu time a virtual CPU can use. A value of 50 implies a single virtual CPU can use up to 50% of a single host CPU.
-    v.customize ["modifyvm", :id, "--cpuexecutioncap", "50"]
-      if INSTALL_CASSANDRA
-        v.customize ["modifyvm", :id, "--memory", 2048]
+    v.customize ["modifyvm", :id, "--cpuexecutioncap", settings['max_cpu_precent']]
+      if settings['cassandra']['install']
+        v.customize ["modifyvm", :id, "--memory", settings['max_memory']]
       end
   end
 end

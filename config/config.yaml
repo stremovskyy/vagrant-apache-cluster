@@ -9,7 +9,7 @@ node_name_prfix: "node"
 # Prefix for public ips
 public:
   enable: true
-  prefix_ip:  192.168.1.2
+  prefix_ip:  192.168.1.11
   bridge: "en0: Ethernet"
 
 private:

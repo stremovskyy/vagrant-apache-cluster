@@ -110,7 +110,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # Config Each service
 
       (1..settings['cluster_size']).each do |z|
-        s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:"#{z}", privileged: true, env: vars 
+        if settings['private']['enable']
+          s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:settings['public']['prefix_ip']+"#{z}" "#{z}", privileged: true, env: vars 
+        else
+           s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:settings['private']['prefix_ip']+"#{z}" "#{z}", privileged: true, env: vars 
+        end
         
         if settings['zookeeper']['install']
           s.vm.provision "shell",  path: "scripts/zookeeper_config.sh", args:"#{z}", privileged: false, env: vars 

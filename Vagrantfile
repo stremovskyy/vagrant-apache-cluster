@@ -43,6 +43,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "CASSANDRA_NAME" => "apache-cassandra-$CASSANDRA_VERSION",
     "CASSANDRA_HOME" => "$HOME/$CASSANDRA_NAME",
     "CASSANDRA_DATA" => "/var/lib/cassandra",
+
+    "HADOOP_VERSION" => settings['hadoop']['version'],
+    "HADOOP_NAME" => "hadoop-$HADOOP_VERSION",
+    "HADOOP_HOME" => "$HOME/$HADOOP_NAME",
+    "HADOOP_DATA" => "/var/lib/hadoop",
   }
 
   # escape environment variables to be loaded to /etc/profile.d/
@@ -64,6 +69,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   if settings['cassandra']['install']
     config.vm.provision "shell", path: "scripts/cassandra_install.sh", env: vars
+  end
+
+  if settings['hadoop']['install']
+    config.vm.provision "shell", path: "scripts/hadoop_install.sh", env: vars
   end
  
   if settings['ignite']['install']
@@ -107,6 +116,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         s.vm.provision "shell", path: "scripts/ignite_config.sh", args:"#{i}", privileged: false, env: vars
       end
 
+      if settings['hadoop']['install']
+        s.vm.provision "shell", path: "scripts/hadoop_config.sh", args:"#{i}", privileged: false, env: vars
+      end
+
       # Config Each service
 
       (1..settings['cluster_size']).each do |z|
@@ -147,6 +160,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       if settings['ignite']['install']
         s.vm.provision "shell", run: "always", path: "scripts/ignite_start.sh", args:"#{i}", privileged: false, env: vars
+      end
+
+      if settings['hadoop']['install']
+        s.vm.provision "shell", run: "always", path: "scripts/hadoop_start.sh", args:"#{i}", privileged: false, env: vars
       end
     end
   end

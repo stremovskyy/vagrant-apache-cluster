@@ -9,7 +9,7 @@ sudo yum -y install unzip
 #download Zookeeper binaries if not present
 if [ ! -f  $TARGET/$IGNITE_NAME.zip ]; then
    mkdir -p $TARGET
-   wget -O "$TARGET/$IGNITE_NAME.zip" http://apache.ip-connect.vn.ua/ignite/"$IGNITE_VERSION/$IGNITE_NAME.zip"
+   curl -o "$TARGET/$IGNITE_NAME.zip" http://apache.ip-connect.vn.ua/ignite/"$IGNITE_VERSION/$IGNITE_NAME.zip"
 fi
 
 if [ ! -d $IGNITE_NAME ]; then 

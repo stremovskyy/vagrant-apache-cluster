@@ -21,9 +21,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.ssh.forward_agent = true # So that boxes don't have to setup key-less ssh
   config.ssh.insert_key = false # To generate a new ssh key and don't use the default Vagrant one
 
+  cluster_nodes = ""
+  zk_nodes = ""
+  (1..settings['cluster_size']).each do |y|
+    if y == settings['cluster_size']
+      cluster_nodes = cluster_nodes + settings['node_name_prfix'] + "#{y}"
+      zk_nodes = zk_nodes + settings['node_name_prfix'] + "#{y}:2181"
+    else
+      cluster_nodes = cluster_nodes + settings['node_name_prfix'] + "#{y},"
+      zk_nodes = zk_nodes + settings['node_name_prfix'] + "#{y}:2181,"
+    end
+  end
+
   vars = {
     "TARGET" => "/vagrant/tars",
     "NODE_NAME_PREFIX" => settings['node_name_prfix'],
+    "CLUSTER_NODES" => cluster_nodes,
+    "ZK_NODES" => zk_nodes,
 
     "KAFKA_VERSION" => settings['apache_kafka']['version'],
     "KAFKA_NAME" => "kafka_2.12-$KAFKA_VERSION",
@@ -46,7 +60,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     "SOLR_VERSION" => settings['solr']['version'],
     "SOLR_NAME" => "solr-$SOLR_VERSION",
-    "SOLR_HOME" => "$HOME/$SOLR_NAME",
+    "SOLR_HOME" => "$HOME/$SOLR_NAME/server/solr",
     "SOLR_DATA" => "/var/lib/SOLR",
 
     "HADOOP_VERSION" => settings['hadoop']['version'],
@@ -125,6 +139,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         s.vm.provision "shell", path: "scripts/ignite_config.sh", args:"#{i}", privileged: false, env: vars
       end
 
+      if settings['solr']['install']
+        s.vm.provision "shell", path: "scripts/solr_config.sh", args:"#{i}", privileged: false, env: vars
+      end
+
       if settings['hadoop']['install']
         s.vm.provision "shell", path: "scripts/hadoop_config.sh", args:"#{i}", privileged: false, env: vars
       end
@@ -142,14 +160,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         
         if settings['zookeeper']['install']
           s.vm.provision "shell",  path: "scripts/zookeeper_config.sh", args:"#{z}", privileged: false, env: vars 
-        end
-        
-        if settings['apache_kafka']['install'] 
-          s.vm.provision "shell",  path: "scripts/kafka_broker_config.sh", args:"#{z}", privileged: false, env: vars 
-        end
-        
-        if settings['cassandra']['install'] 
-          s.vm.provision "shell",  path: "scripts/cassandra_each_config.sh", args:"#{z}", privileged: false, env: vars 
         end
       end
 
@@ -169,6 +179,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       if settings['ignite']['install']
         s.vm.provision "shell", run: "always", path: "scripts/ignite_start.sh", args:"#{i}", privileged: false, env: vars
+      end
+
+      if settings['solr']['install']
+        s.vm.provision "shell", run: "always", path: "scripts/solr_start.sh", args:"#{i}", privileged: false, env: vars
       end
 
       if settings['hadoop']['install']

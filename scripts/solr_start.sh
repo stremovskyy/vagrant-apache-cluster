@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Starting Apache Ignite"
+echo "Starting Apache Solr"
 
-$SOLR_NAME/bin/solr start -c -m 1g -z node1:2181
+nohup $SOLR_NAME/bin/solr start -c -h $NODE_NAME_PREFIX$1 -m 512m -z $ZK_NODES/solr > solr.out &
 sleep 2

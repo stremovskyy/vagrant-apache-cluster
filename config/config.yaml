@@ -11,7 +11,7 @@ node_name_prfix: "node"
 public:
   enable: true
   prefix_ip: 192.168.1.11
-  bridge: "en0: Ethernet"
+  bridge: "en0: Wi-Fi (AirPort)"
 
 private:
   enable: false

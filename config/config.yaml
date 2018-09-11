@@ -5,6 +5,8 @@ max_memory: 2048
 max_cpu_precent: 50
 node_name_prfix: "node"
 
+########### NETWORK ###########
+
 # Prefix for public ips
 public:
   enable: true
@@ -15,14 +17,16 @@ private:
   enable: false
   prefix_ip: 10.20.30.1
 
+###############################
+
 # Apache Zookeeper Section
 zookeeper:
-  install: true
+  install: false
   version: "3.4.13"
 
 # Apache Kafka Section
 apache_kafka:
-  install: true
+  install: false
   version: "2.0.0"
 
 # Apache Ignite Section (May need to enable zookeeper)
@@ -32,7 +36,7 @@ ignite:
 
 # Apache Cassandra Section
 cassandra:
-  install: false
+  install: true
   version: "3.11.3"
 
 hadoop:

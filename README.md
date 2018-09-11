@@ -45,7 +45,7 @@ Kafka is installed on all hosts and can be easily accessed through the environme
 
 Zookeeper servers bind to port 2181. Kafka brokers bind to port 9092. 
 
-Setup
+Apache Cassandra Basics
 -------------------------
 
 To check Apache Cassandra Cluster Status use:

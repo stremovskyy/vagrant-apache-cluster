@@ -1,5 +1,5 @@
 #!/bin/bash
 
 echo "Starting Cassandra Server..."
-nohup $CASSANDRA_NAME/bin/cassandra ignite.log 2>&1 &
+nohup $CASSANDRA_NAME/bin/cassandra > cassandra.out &
 sleep 2

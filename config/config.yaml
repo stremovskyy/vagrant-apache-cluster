@@ -1,13 +1,13 @@
 # A cluster size (any words, how many vm should be started)
 # Note! for normal work in cluster this value should be grater than 3
-cluster_size: 1
+cluster_size: 3
 max_memory: 2048
 max_cpu_precent: 50
 node_name_prfix: "node"
 
 # Prefix for public ips
 public:
-  enable: false
+  enable: true
   prefix_ip: 192.168.1.11
   bridge: "en0: Ethernet"
 
@@ -32,9 +32,9 @@ ignite:
 
 # Apache Cassandra Section
 cassandra:
-  install: false
+  install: true
   version: "3.11.3"
 
 hadoop:
-  install: true
+  install: false
   version: "3.1.1"

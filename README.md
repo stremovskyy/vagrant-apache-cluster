@@ -45,6 +45,23 @@ Kafka is installed on all hosts and can be easily accessed through the environme
 
 Zookeeper servers bind to port 2181. Kafka brokers bind to port 9092. 
 
+Setup
+-------------------------
+
+To check Apache Cassandra Cluster Status use:
+`$CASSANDRA_NAME/bin/nodetool status`
+And get something like this:
+```
+Datacenter: dc1
+===============
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address        Load       Tokens       Owns (effective)  Host ID                               Rack
+UN  192.168.1.111  69.92 KiB  256          65.8%             775f57ec-6950-4783-9bc9-1dfb8cceda76  rack1
+UN  192.168.1.112  105.24 KiB  256          69.3%             6d6d075e-6680-4097-b2f5-52f631868867  rack1
+UN  192.168.1.113  69.94 KiB  256          65.0%             c6b6d23d-13ec-4389-b8d7-30c45ec976ce  rack1
+```
+
 Known Issues
 -------------------------
 

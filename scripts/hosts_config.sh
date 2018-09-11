@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#bootstrap hosts file
+echo Bootstraping hosts file
 
 if [ $# -gt 0 ]; then
     sed -i "$ a $1 $NODE_NAME_PREFIX$2" /etc/hosts

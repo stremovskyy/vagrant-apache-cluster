@@ -124,9 +124,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       (1..settings['cluster_size']).each do |z|
         if settings['private']['enable']
-          s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:settings['public']['prefix_ip']+"#{z}" "#{z}", privileged: true, env: vars 
-        else
-           s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:settings['private']['prefix_ip']+"#{z}" "#{z}", privileged: true, env: vars 
+          s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:[settings['private']['prefix_ip']+"#{z}","#{z}"], privileged: true, env: vars 
+        end
+
+        if settings['public']['enable']
+           s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:[settings['public']['prefix_ip']+"#{z}","#{z}"], privileged: true, env: vars 
         end
         
         if settings['zookeeper']['install']
@@ -141,8 +143,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           s.vm.provision "shell",  path: "scripts/cassandra_each_config.sh", args:"#{z}", privileged: false, env: vars 
         end
       end
-
-
 
       # Starting services
 

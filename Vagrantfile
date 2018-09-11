@@ -44,6 +44,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "CASSANDRA_HOME" => "$HOME/$CASSANDRA_NAME",
     "CASSANDRA_DATA" => "/var/lib/cassandra",
 
+    "SOLR_VERSION" => settings['solr']['version'],
+    "SOLR_NAME" => "solr-$SOLR_VERSION",
+    "SOLR_HOME" => "$HOME/$SOLR_NAME",
+    "SOLR_DATA" => "/var/lib/SOLR",
+
     "HADOOP_VERSION" => settings['hadoop']['version'],
     "HADOOP_NAME" => "hadoop-$HADOOP_VERSION",
     "HADOOP_HOME" => "$HOME/$HADOOP_NAME",
@@ -69,6 +74,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   if settings['cassandra']['install']
     config.vm.provision "shell", path: "scripts/cassandra_install.sh", env: vars
+  end
+
+  if settings['solr']['install']
+    config.vm.provision "shell", path: "scripts/solr_install.sh", env: vars
   end
 
   if settings['hadoop']['install']

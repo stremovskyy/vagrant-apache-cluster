@@ -105,9 +105,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  # configure nodes
+  
   (1..settings['cluster_size']).each do |i|
     config.vm.define settings['node_name_prfix'] + "#{i}" do |s|
+      
+# Configuring node
       s.vm.hostname = settings['node_name_prfix'] + "#{i}"
       s.vm.post_up_message = "Virtal node name: " + settings['node_name_prfix'] + "#{i}"
       
@@ -121,8 +123,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         s.vm.post_up_message = "Public IP: " + settings['public']['prefix_ip'] + "#{i}"
       end
 
-      # Config services
-
+# Config services
       if settings['zookeeper']['install']
             s.vm.provision "shell", path: "scripts/zookeeper_each_config.sh", args:"#{i}", privileged: false, env: vars
       end
@@ -147,7 +148,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         s.vm.provision "shell", path: "scripts/hadoop_config.sh", args:"#{i}", privileged: false, env: vars
       end
 
-      # Config Each service
+# Config Each service
 
       (1..settings['cluster_size']).each do |z|
         if settings['private']['enable']
@@ -163,7 +164,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
-      # Starting services
+# Starting services
 
       if settings['zookeeper']['install']
         s.vm.provision "shell", run: "always", path: "scripts/zookeeper_start.sh", args:"#{i}", privileged: false, env: vars
@@ -191,11 +192,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+# Additional configs
   config.vm.provider "virtualbox" do |v|
-    #  This setting controls how much cpu time a virtual CPU can use. A value of 50 implies a single virtual CPU can use up to 50% of a single host CPU.
     v.customize ["modifyvm", :id, "--cpuexecutioncap", settings['max_cpu_precent']]
-      if settings['cassandra']['install']
-        v.customize ["modifyvm", :id, "--memory", settings['max_memory']]
-      end
+    v.customize ["modifyvm", :id, "--memory", settings['max_memory']]
   end
 end

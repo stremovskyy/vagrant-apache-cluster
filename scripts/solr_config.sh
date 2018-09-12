@@ -25,3 +25,4 @@ EOL
 
 nohup $SOLR_NAME/bin/solr zk cp file:$SOLR_NAME/security.json zk:/security.json -z $ZK_NODES &
 nohup $SOLR_NAME/bin/solr zk cp file:$SOLR_NAME/server/solr/solr.xml  zk:/solr.xml -z $ZK_NODES &
+nohup $SOLR_NAME/bin/solr create -c vagrant_index -replicationFactor 3 -shards 1 &

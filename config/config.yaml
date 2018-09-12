@@ -2,6 +2,7 @@
 # Note! for normal work in cluster this value should be grater than 3
 cluster_size: 3
 max_memory: 2048
+#  This setting controls how much cpu time a virtual CPU can use. A value of 50 implies a single virtual CPU can use up to 50% of a single host CPU.
 max_cpu_precent: 50
 node_name_prfix: "node"
 
@@ -11,7 +12,7 @@ node_name_prfix: "node"
 public:
   enable: true
   prefix_ip: 192.168.1.11
-  bridge: "en0: Wi-Fi (AirPort)"
+  bridge: "en0: Ethernet"
 
 private:
   enable: false
@@ -26,17 +27,17 @@ zookeeper:
 
 # Apache Kafka Section
 apache_kafka:
-  install: false
+  install: true
   version: "2.0.0"
 
 # Apache Ignite Section (May need to enable zookeeper)
 ignite:
-  install: false
+  install: true
   version: "2.6.0"
 
 # Apache Cassandra Section
 cassandra:
-  install: false
+  install: true
   version: "3.11.3"
 
 hadoop:
@@ -44,5 +45,5 @@ hadoop:
   version: "3.1.1"
 
 solr:
-  install: true
+  install: false
   version: "7.4.0"

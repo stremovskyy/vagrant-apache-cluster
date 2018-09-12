@@ -9,6 +9,7 @@ In the box
 * Apache Zookeeper Cluster
 * Apache Cassandra Cluster
 * Apache Ignite Cluster
+* Apache Solr Cluster
 
 Partitioned Apache Kafka installation with clustered Apache Zookeeper.
 
@@ -26,6 +27,7 @@ Versions and Info
 * Apache Zookeeper **3.4.13**
 * Apache Cassandra **3.11.3**
 * Apache Ignite **2.6.0**
+* Apache Solr **7.4.0**
 * Dynamic hosts number
 
 > Versions can be edited in ```config/config.yaml```
@@ -64,6 +66,8 @@ UN  192.168.1.113  69.94 KiB  256          65.0%             c6b6d23d-13ec-4389-
 
 Known Issues
 -------------------------
+> Some Cluster configs  not started after first vagrant up
+>> Cluster which depending from Apache zookeeper may not start on first VMs, `vagrant reload` can help with it
 
 > After `vagrant up` first node is not active
 >> Just `vagrant reload <first node name>`, it's because first node after start, not finded other nodes.

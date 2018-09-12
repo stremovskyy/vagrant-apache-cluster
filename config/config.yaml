@@ -22,17 +22,17 @@ private:
 
 # Apache Zookeeper Section
 zookeeper:
-  install: true
+  install: false
   version: "3.4.13"
 
 # Apache Kafka Section
 apache_kafka:
-  install: true
+  install: false
   version: "2.0.0"
 
 # Apache Ignite Section (May need to enable zookeeper)
 ignite:
-  install: true
+  install: false
   version: "2.6.0"
 
 # Apache Cassandra Section

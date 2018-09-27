@@ -41,6 +41,9 @@ Prerequisites
 Setup
 -------------------------
 
+#### Before starting copy file `config/config_exaple.yaml` to `config/config.yaml` 
+----
+
 To start it up, just git clone this repo and execute ```vagrant up && vargrant reload```. This will take a while the first time as it downloads all required dependencies for you.
 
 Kafka is installed on all hosts and can be easily accessed through the environment variable ```$KAFKA_HOME```

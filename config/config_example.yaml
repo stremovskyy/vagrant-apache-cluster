@@ -15,7 +15,7 @@ public:
   bridge: "en0: Ethernet"
 
 private:
-  enable: false
+  enable: true
   prefix_ip: 10.20.30.1
 
 ###############################

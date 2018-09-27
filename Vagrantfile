@@ -33,8 +33,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
+  config.vm.synced_folder "shared/", "/home/vagrant/shared", type: "nfs"
+
   vars = {
-    "TARGET" => "/vagrant/tars",
+    "TARGET" => "/home/vagrant/shared",
+    "JAVA_NAME" => "jdk-linux-x64",
     "NODE_NAME_PREFIX" => settings['node_name_prfix'],
     "CLUSTER_NODES" => cluster_nodes,
     "ZK_NODES" => zk_nodes,
@@ -151,9 +154,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 # Config Each service
 
       (1..settings['cluster_size']).each do |z|
-        if settings['private']['enable']
-          s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:[settings['private']['prefix_ip']+"#{z}","#{z}"], privileged: true, env: vars 
-        end
+        
 
         if settings['public']['enable']
            s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:[settings['public']['prefix_ip']+"#{z}","#{z}"], privileged: true, env: vars 

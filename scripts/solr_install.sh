@@ -4,7 +4,6 @@ echo "downloading Solr...$SOLR_VERSION"
 
 #download Zookeeper binaries if not present
 if [ ! -f  $TARGET/$SOLR_NAME.tgz ]; then
-   mkdir -p $TARGET
    curl -o "$TARGET/$SOLR_NAME.tgz" http://apache.cp.if.ua/lucene/solr/"$SOLR_VERSION/$SOLR_NAME.tgz"
 fi
 

@@ -20,6 +20,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.box = "centos/7"
   config.ssh.forward_agent = true # So that boxes don't have to setup key-less ssh
   config.ssh.insert_key = false # To generate a new ssh key and don't use the default Vagrant one
+  config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/authorized_keys"
 
   cluster_nodes = ""
   zk_nodes = ""

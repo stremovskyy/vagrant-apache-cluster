@@ -89,7 +89,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # common provisioning for all
   config.vm.provision "shell", inline: "echo \"#{as_str}\" > /etc/profile.d/kafka_vagrant_env.sh", run: "always"
-  config.vm.provision "shell", path: "scripts/init.sh", env: vars, privileged: true                                 //TODO:::: WARNING
+  config.vm.provision "shell", path: "scripts/init.sh", env: vars, privileged: true                                
   config.vm.provision "shell", path: "scripts/hosts_config.sh", privileged: true, env: vars 
 
   if settings['zookeeper']['install']

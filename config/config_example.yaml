@@ -47,3 +47,7 @@ hadoop:
 solr:
   install: false
   version: "7.5.0"
+
+mysql:
+  install: false
+  root_passwd: "MyNewPass*123"

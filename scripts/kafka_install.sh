@@ -5,7 +5,6 @@ echo "Start - installing Kafka..."
 echo "downloading kafka...$KAFKA_VERSION"
 #download kafka binaries if not present
 if [ ! -f  $TARGET/$KAFKA_NAME.tgz ]; then
-   mkdir -p $TARGET
    curl -o "$TARGET/$KAFKA_NAME.tgz" http://apache.mirrors.hoobly.com/kafka/"$KAFKA_VERSION/$KAFKA_NAME.tgz"
 fi
 

@@ -6,7 +6,6 @@ echo "downloading Zookeeper...$ZOOKEEPER_VERSION"
 
 #download Zookeeper binaries if not present
 if [ ! -f  $TARGET/$ZOOKEEPER_NAME.tar.gz ]; then
-   mkdir -p $TARGET
    curl -o "$TARGET/$ZOOKEEPER_NAME.tar.gz" http://apache.cp.if.ua/zookeeper/"$ZOOKEEPER_NAME/$ZOOKEEPER_NAME.tar.gz"
 fi
 

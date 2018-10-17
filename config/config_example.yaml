@@ -48,6 +48,10 @@ solr:
   install: false
   version: "7.5.0"
 
+elasticsearch:
+  install: false
+  version: "6.x"
+
 mysql:
   install: false
   root_passwd: "MyNewPass*123"

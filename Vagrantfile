@@ -23,17 +23,20 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/authorized_keys"
 
   cluster_nodes = ""
+  elastic_cluster_nodes = ""
   cluster_ips = ""
   zk_nodes = ""
   mysql_nodes = ""
   (1..settings['cluster_size']).each do |y|
     if y == settings['cluster_size']
       cluster_nodes = cluster_nodes + settings['node_name_prfix'] + "#{y}"
+      elastic_cluster_nodes = elastic_cluster_nodes + "\"#{settings['node_name_prfix']}" + "#{y}\"" 
       cluster_ips = cluster_ips + settings['public']['prefix_ip'] + "#{y}"
       zk_nodes = zk_nodes + settings['node_name_prfix'] + "#{y}:2181"
       mysql_nodes = mysql_nodes + settings['public']['prefix_ip'] + "#{y}:33011"
     else
       cluster_nodes = cluster_nodes + settings['node_name_prfix'] + "#{y},"
+      elastic_cluster_nodes = elastic_cluster_nodes + "\"#{settings['node_name_prfix']}" + "#{y},\"" 
       cluster_ips = cluster_ips + settings['public']['prefix_ip'] + "#{y},"
       zk_nodes = zk_nodes + settings['node_name_prfix'] + "#{y}:2181,"
       mysql_nodes = mysql_nodes + settings['public']['prefix_ip'] + "#{y}:33011,"
@@ -48,6 +51,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     "NODE_NAME_PREFIX" => settings['node_name_prfix'],
     "NODE_IP_PREFIX" => settings['public']['prefix_ip'],
     "CLUSTER_NODES" => cluster_nodes,
+    "ELASTIC_CLUSTER_NODES" => elastic_cluster_nodes,
     "CLUSTER_IPS" => cluster_ips,
     "ZK_NODES" => zk_nodes,
     "MYSQL_CLUSTER_NODES" => mysql_nodes,
@@ -116,6 +120,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   if settings['mysql']['install']
     config.vm.provision "shell", path: "scripts/mysql_install.sh", env: vars
   end
+
+  if settings['elasticsearch']['install']
+    config.vm.provision "shell", path: "scripts/elastic_install.sh", env: vars
+  end
  
   if settings['ignite']['install']
     config.vm.provision "shell", path: "scripts/ignite_install.sh", env: vars
@@ -161,6 +169,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       if settings['solr']['install']
         s.vm.provision "shell", path: "scripts/solr_config.sh", args:"#{i}", privileged: false, env: vars
+      end
+
+      if settings['elasticsearch']['install']
+        config.vm.provision "shell", path: "scripts/elastic_config.sh", args:"#{i}", env: vars
       end
 
       if settings['hadoop']['install']
@@ -211,6 +223,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
       if settings['solr']['install']
         s.vm.provision "shell", run: "always", path: "scripts/solr_start.sh", args:"#{i}", privileged: false, env: vars
+      end
+
+      if settings['elasticsearch']['install']
+        config.vm.provision "shell", path: "scripts/elastic_start.sh", args:"#{i}", env: vars
       end
 
       if settings['hadoop']['install']

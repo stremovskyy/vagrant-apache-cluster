@@ -6,7 +6,6 @@ echo "downloading Hadoop...$HADOOP_VERSION"
 
 #download Zookeeper binaries if not present
 if [ ! -f  $TARGET/$HADOOP_NAME.tar.gz ]; then
-   mkdir -p $TARGET
    curl -o "$TARGET/$HADOOP_NAME.tar.gz" http://apache.cp.if.ua/hadoop/common/hadoop-"$HADOOP_VERSION/$HADOOP_NAME.tar.gz"
 fi
 

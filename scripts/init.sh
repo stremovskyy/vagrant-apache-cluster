@@ -5,6 +5,7 @@ echo "installing JDK ..."
 if [ ! -f  $TARGET/$JAVA_NAME.rpm ]; then
     echo "downloading java"
     mkdir -p $TARGET
+    chown vagrant:vagrant $TARGET
     BASE_URL="technetwork/java/javase/downloads"
     BASE_URL_OUTPUT="$(curl -s  -L0 http://www.oracle.com/${BASE_URL}/)"
     JAVA_ENVIRONMENT="JDK"

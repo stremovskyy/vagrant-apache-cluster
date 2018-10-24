@@ -2,5 +2,7 @@
 
 echo "Starting Apache Hadoop"
 
-# nohup $HADOOP_HOME/bin/hadoop &
+$HADOOP_HOME/sbin/start-dfs.sh
+$HADOOP_HOME/sbin/start-yarn.sh
+
 sleep 2

@@ -80,8 +80,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     "HADOOP_VERSION" => settings['hadoop']['version'],
     "HADOOP_NAME" => "hadoop-$HADOOP_VERSION",
-    "HADOOP_HOME" => "$HOME/$HADOOP_NAME",
+    "HADOOP_HOME" => "/home/vagrant/$HADOOP_NAME",
     "HADOOP_DATA" => "/var/lib/hadoop",
+    
+    "JAVA_HOME"=>'/usr/java/jdk1.8.0_192-amd64',
   }
 
   # escape environment variables to be loaded to /etc/profile.d/
@@ -142,6 +144,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         s.vm.post_up_message = "Public IP: " + settings['public']['prefix_ip'] + "#{i}"
       end
 
+# Config Each service
+
+(1..settings['cluster_size']).each do |z|
+        
+  if settings['public']['enable']
+     s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:[settings['public']['prefix_ip']+"#{z}","#{z}"], privileged: true, env: vars 
+  end
+  
+  if settings['zookeeper']['install']
+    s.vm.provision "shell",  path: "scripts/zookeeper_config.sh", args:"#{z}", privileged: false, env: vars 
+  end
+end
+
 # Config services
       if settings['zookeeper']['install']
             s.vm.provision "shell", path: "scripts/zookeeper_each_config.sh", args:"#{i}", privileged: false, env: vars
@@ -177,19 +192,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         s.vm.provision "shell", path: "scripts/mysql_router_install.sh", args:"#{i}", privileged: true, env: vars
       end
 
-# Config Each service
-
-      (1..settings['cluster_size']).each do |z|
-        
-
-        if settings['public']['enable']
-           s.vm.provision "shell",  path: "scripts/hosts_config.sh", args:[settings['public']['prefix_ip']+"#{z}","#{z}"], privileged: true, env: vars 
-        end
-        
-        if settings['zookeeper']['install']
-          s.vm.provision "shell",  path: "scripts/zookeeper_config.sh", args:"#{z}", privileged: false, env: vars 
-        end
-      end
 
 # Starting services
 

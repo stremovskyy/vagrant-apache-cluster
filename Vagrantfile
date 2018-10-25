@@ -19,8 +19,22 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.box = "centos/7"
   config.ssh.forward_agent = true # So that boxes don't have to setup key-less ssh
-  config.ssh.insert_key = false # To generate a new ssh key and don't use the default Vagrant one
-  # config.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "~/.ssh/authorized_keys"
+  config.ssh.insert_key = true # To generate a new ssh key and don't use the default Vagrant one
+
+    config.vm.provision "file", source: "#{Dir.home}/.ssh/id_rsa", destination: "/home/vagrant/.ssh/id_rsa"
+    public_key = File.read("#{Dir.home}/.ssh/id_rsa.pub")
+    
+ config.vm.provision :shell, :inline =>"
+     echo 'Copying ansible-vm public SSH Keys to the VM'
+     mkdir -p /home/vagrant/.ssh
+     chmod 700 /home/vagrant/.ssh
+     echo '#{public_key}' >> /home/vagrant/.ssh/authorized_keys
+     chmod -R 600 /home/vagrant/.ssh/authorized_keys
+     echo 'Host '#{settings["public"]["prefix_ip"]}'*' >> /home/vagrant/.ssh/config
+     echo 'StrictHostKeyChecking no' >> /home/vagrant/.ssh/config
+     echo 'UserKnownHostsFile /dev/null' >> /home/vagrant/.ssh/config
+     chmod -R 600 /home/vagrant/.ssh/config
+     ", privileged: false
 
   cluster_nodes = ""
   cluster_ips = ""

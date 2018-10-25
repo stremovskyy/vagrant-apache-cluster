@@ -25,6 +25,7 @@ export HADOOP_YARN_HOME=$HADOOP_HOME
 export HADOOP_OPTS="-Djava.library.path=$HADOOP_HOME/lib/native"
 export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
 export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+export HADOOP_USER_NAME=vagrant
 EOF
 
 source .bashrc
@@ -33,10 +34,14 @@ source .bashrc
 mkdir -p $HADOOP_HOME/hadoopdata/hdfs/namenode
 mkdir -p $HADOOP_HOME/hadoopdata/hdfs/datanode
 
-sed -i 's#<configuration>#<configuration>\n<property>\n\t<name>fs.default.name</name>\n\t\t<value>hdfs://localhost:9000</value>\n</property>#' $HADOOP_HOME/etc/hadoop/core-site.xml
+sed -i "s#<configuration>#<configuration>\n<property>\n\t<name>fs.default.name</name>\n\t\t<value>hdfs://"$NODE_NAME_PREFIX"1:9000</value>\n</property>#" $HADOOP_HOME/etc/hadoop/core-site.xml
 sed -i 's#<configuration>#<configuration>\n\t<property>\n\t<name>mapreduce.framework.name</name>\n\t\t<value>yarn</value>\n\t</property>#' $HADOOP_HOME/etc/hadoop/mapred-site.xml
 sed -i 's#<configuration>#<configuration>\n<property>\n\t<name>yarn.nodemanager.aux-services</name>\n\t\t<value>mapreduce_shuffle</value>\n\t</property>#' $HADOOP_HOME/etc/hadoop/yarn-site.xml
-sed -i "s#<configuration>#<configuration>\n<property>\n\t<name>dfs.replication</name>\n\t\t<value>1</value>\n</property>\n\n<property>\n\t<name>dfs.name.dir</name>\n\t\t<value>file://$HADOOP_HOME/hadoopdata/hdfs/namenode</value>\n</property>\n\n<property>\n\t<name>dfs.data.dir</name>\n\t\t<value>file://$HADOOP_HOME/hadoopdata/hdfs/datanode</value>\n</property>#" $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+sed -i "s#<configuration>#<configuration>\n<property>\n\t<name>dfs.replication</name>\n\t\t<value>2</value>\n</property>\n\n<property>\n\t<name>dfs.name.dir</name>\n\t\t<value>file://$HADOOP_HOME/hadoopdata/hdfs/namenode</value>\n</property>\n\n<property>\n\t<name>dfs.data.dir</name>\n\t\t<value>file://$HADOOP_HOME/hadoopdata/hdfs/datanode</value>\n</property><property>\n<name>dfs.permissions</name>\n\t<value>false</value>\n</property>#" $HADOOP_HOME/etc/hadoop/hdfs-site.xml
+
+echo "$NODE_NAME_PREFIX"1>$HADOOP_HOME/etc/hadoop/masters
+echo "$NODE_NAME_PREFIX"2>$HADOOP_HOME/etc/hadoop/slaves
+echo "$NODE_NAME_PREFIX"3>$HADOOP_HOME/etc/hadoop/slaves
 
 sudo chown -R vagrant:vagrant $HADOOP_NAME
 

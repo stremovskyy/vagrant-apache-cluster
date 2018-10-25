@@ -8,8 +8,10 @@ chmod 0600 /home/vagrant/.ssh/authorized_keys
 chown vagrant:vagrant /home/vagrant/.ssh/authorized_keys
 chown vagrant:vagrant /home/vagrant/.ssh/id_rsa.pub
 
-nohup $HADOOP_HOME/bin/hdfs namenode -format &
+$HADOOP_HOME/bin/hdfs namenode -format 
 
 # $HADOOP_HOME/bin/hdfs dfs -mkdir /hadooptest
-# $HADOOP_HOME/bin/hdfs dfs -put .bashrc /hadooptest
+# $HADOOP_HOME/bin/hdfs dfs -put ~/.bashrc /hadooptest
 # $HADOOP_HOME/bin/hdfs dfs -get /hadooptest
+
+

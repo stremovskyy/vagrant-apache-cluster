@@ -10,6 +10,8 @@ In the box
 * Apache Cassandra Cluster
 * Apache Ignite Cluster
 * Apache Solr Cluster
+* Apache Hadoop
+* Oracle Mysql Cluster
 
 Partitioned Apache Kafka installation with clustered Apache Zookeeper.
 
@@ -27,7 +29,9 @@ Versions and Info
 * Apache Zookeeper **3.4.13**
 * Apache Cassandra **3.11.3**
 * Apache Ignite **2.6.0**
-* Apache Solr **7.4.0**
+* Apache Solr **7.5.0**
+* Apache Hadoop **3.1.1**
+* Oracle Mysql **5.7**
 * Dynamic hosts number
 
 > Versions can be edited in ```config/config.yaml```
